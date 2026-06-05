@@ -1,5 +1,6 @@
 package br.com.alura.screenmatch;
 
+import br.com.alura.screenmatch.excecao.ErroConversaoDeAnoException;
 import br.com.alura.screenmatch.modelos.Titulo;
 import br.com.alura.screenmatch.modelos.TituloOMDB;
 import com.google.gson.FieldNamingPolicy;
@@ -21,12 +22,14 @@ public class PrincipalComBusca {
 
         System.out.println("Digite um filme para busca: ");
         var busca = leitura.nextLine();
+
         String apiKey = System.getenv("OMDB_API_KEY");
 
         String endereco = "https://omdbapi.com/?t="
                 + URLEncoder.encode(busca, StandardCharsets.UTF_8)
                 + "&apikey=" + apiKey;
 
+        try {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(endereco))
@@ -44,8 +47,19 @@ public class PrincipalComBusca {
         TituloOMDB meuTituloOMDB = gson.fromJson(json, TituloOMDB.class);
         System.out.println(meuTituloOMDB);
 
-        Titulo meuTitulo = new Titulo(meuTituloOMDB);
-        System.out.println("\nTitulo convertido: ");
-        System.out.println(meuTitulo);
+            Titulo meuTitulo = new Titulo(meuTituloOMDB);
+            System.out.println("\nTitulo convertido: ");
+            System.out.println(meuTitulo);
+        } catch (NumberFormatException e) {
+            System.out.println("Ocorreu um erro: ");
+            System.out.println(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ocorreu algum erro de argumento na busca, verifique o endereço.");
+            System.out.println(e.getMessage());
+        } catch (ErroConversaoDeAnoException e) {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println("\nO programa finalizou corretamente!");
     }
 }
